@@ -11,10 +11,44 @@
 //more, and keep the project more our own
 #include "MAX30100.h"
 
-void setup(){
-  Wire.begin(); // join i2c bus (address optional)
+#include "MAX30100_PulseOximeter.h"
+
+#define REPORTING_PERIOD_MS     1000
+
+PulseOximeter pox;
+
+uint32_t tsLastReport = 0;
+
+void onBeatDetected()
+{
+    Serial.println("Beat!");
 }
 
-void loop(){
-  
+void setup()
+{
+    Serial.begin(115200);
+
+    if (!pox.begin()) {
+        Serial.println("Failed to initialize pulse oximeter");
+        for(;;);
+    }
+
+    pox.setOnBeatDetectedCallback(onBeatDetected);
+
+    pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
+}
+
+void loop()
+{
+    pox.update();
+
+    if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
+        Serial.print("Heart rate:");
+        Serial.print(pox.getHeartRate());
+        Serial.print("bpm / SpO2:");
+        Serial.print(pox.getSpO2());
+        Serial.println("%");
+
+        tsLastReport = millis();
+    }
 }
