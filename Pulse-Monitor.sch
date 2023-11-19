@@ -22,17 +22,6 @@ Pulse Monitor Wiring Diagram
 Text Notes 7000 7100 0    50   ~ 0
 Author: Joshua Cappella\nDesigned For: Cedarville Microcontrollers EGCP-2120
 $Comp
-L Device:Speaker LS?
-U 1 1 6556677C
-P 6950 4900
-F 0 "LS?" H 7120 4896 50  0001 L CNN
-F 1 "Speaker" H 6913 4575 50  0000 C CNN
-F 2 "" H 6950 4700 50  0001 C CNN
-F 3 "~" H 6940 4850 50  0001 C CNN
-	1    6950 4900
-	1    0    0    -1  
-$EndComp
-$Comp
 L Device:Battery_Cell BT?
 U 1 1 65566E9D
 P 4550 3400
@@ -112,14 +101,25 @@ Wire Wire Line
 Wire Wire Line
 	4550 3550 4550 3650
 Wire Wire Line
-	5750 4900 6750 4900
-Wire Wire Line
-	5750 4900 5750 4650
-Wire Wire Line
 	6750 5000 4750 5000
 Wire Wire Line
 	4750 4650 4750 4800
 Connection ~ 4750 4800
 Wire Wire Line
 	4750 4800 4750 5000
+$Comp
+L Device:Speaker LS?
+U 1 1 6556677C
+P 6950 4900
+F 0 "LS?" H 7120 4896 50  0001 L CNN
+F 1 "Speaker" H 6913 4575 50  0000 C CNN
+F 2 "" H 6950 4700 50  0001 C CNN
+F 3 "~" H 6940 4850 50  0001 C CNN
+	1    6950 4900
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	6750 4900 5450 4900
+Wire Wire Line
+	5450 4900 5450 4650
 $EndSCHEMATC
