@@ -5,7 +5,7 @@
  * Wrist-mounted monitor for tracking heart rate
  */
 
-include <Wire.h>
+#include <Wire.h>
 //might be worth considering rewriting some of the MAX30100 library functionality
 //this would increase lines of code written, but would allow us to learn
 //more, and keep the project more our own
