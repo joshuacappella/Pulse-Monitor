@@ -1,0 +1,5 @@
+//Suggestions to add to the project
+
+- mini on/off switch, to save power, along with battery power supply
+- way to change preselected sounds to bassy "vibrate" option
+- way to change preselected heart range to one that suits the user, making our product viable for both mild notifications for old souls exercising, as well as an emergency beacon for the young at heart
