@@ -5,14 +5,20 @@
  * Wrist-mounted monitor for tracking heart rate
  */
 
-#include <Wire.h>
 //might be worth considering rewriting some of the MAX30100 library functionality
 //this would increase lines of code written, but would allow us to learn
 //more, and keep the project more our own
-#include "MAX30100.h"
 
-#include "MAX30100_PulseOximeter.h"
+#define USE_ARDUINO_INTERRUPTS true    // Set-up low-level interrupts for most acurate BPM math.
+#include <PulseSensorPlayground.h>     // Includes the PulseSensorPlayground Library.   
 
+//  Variables
+const int PulseWire = 0;       // PulseSensor PURPLE WIRE connected to ANALOG PIN 0
+const int LED = LED_BUILTIN;          // The on-board Arduino LED, close to PIN 13.
+int Threshold = 550;           // Determine which Signal to "count as a beat" and which to ignore.
+                               // Use the "Gettting Started Project" to fine-tune Threshold Value beyond default setting.
+                               // Otherwise leave the default "550" value. 
+                               
 #define REPORTING_PERIOD_MS     1000
 #define NOTE_A5S 932.3
 #define NOTE_A5  880.0
@@ -29,48 +35,50 @@
 #define NOTE_G3S 207.7 
 #define NOTE_REST 0
 
-int speakerPin = 8; // Speaker connected to D8
+PulseSensorPlayground pulseSensor;  // Creates an instance of the PulseSensorPlayground object called "pulseSensor"
 
-PulseOximeter pox;
+int speakerPin = 8; // Speaker connected to D8
 
 uint32_t tsLastReport = 0;
 
-void onBeatDetected()
-{
-    Serial.println("Beat!");
-}
 
 void setup()
 {
     pinMode(speakerPin, OUTPUT);	//Setup up speaker pin for output 
     Serial.begin(115200);
+    // Configure the PulseSensor object, by assigning our variables to it. 
+    pulseSensor.analogInput(PulseWire);   
+    pulseSensor.blinkOnPulse(LED);       //auto-magically blink Arduino's LED with heartbeat.
+    pulseSensor.setThreshold(Threshold);   
+  
+    // Double-check the "pulseSensor" object was created and "began" seeing a signal. 
+     if (pulseSensor.begin()) {
+      Serial.println("We created a pulseSenso r Object !");  //This prints one time at Arduino power-up,  or on Arduino reset.  
+  }
 
-    if (!pox.begin()) {
-        Serial.println("Failed to initialize pulse oximeter");
-        for(;;);
-    }
 
-    pox.setOnBeatDetectedCallback(onBeatDetected);
 
-    pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
 }
 
 
 void loop()
 {
-    pox.update();
-
-    if (millis() - tsLastReport > REPORTING_PERIOD_MS) {
-        Serial.print("Heart rate:");
-        Serial.print(pox.getHeartRate());
-        Serial.print("bpm / SpO2:");
-        Serial.print(pox.getSpO2());
-        Serial.println("%");
-
-        tsLastReport = millis();
+    if (pulseSensor.sawStartOfBeat()) {            // Constantly test to see if "a beat happened".
+      int myBPM = pulseSensor.getBeatsPerMinute();  // Calls function on our pulseSensor object that returns BPM as an "int".
+                                                 // "myBPM" hold this BPM value now. 
+       Serial.println("♥  A HeartBeat Happened ! "); // If test is "true", print a message "a heartbeat happened".
+       Serial.print("BPM: ");                        // Print phrase "BPM: " 
+       Serial.println(myBPM);                        // Print the value inside of myBPM.
+       if(myBPM < 70){
+        playShootingStars();  //Recommended for high heart rate, call when upper limit crossed     
+       }
+       if(myBPM > 200){
+        playCrabRave();       //Recommended for low heart rate, call when lower limit crossed
+       } 
     }
-    playCrabRave();       //Recommended for low heart rate, call when lower limit crossed
-    playShootingStars();  //Recommended for high heart rate, call when upper limit crossed
+  
+    delay(20);                    // considered best practice in a simple sketch.
+
 }
 
 void playCrabRave() {
@@ -101,4 +109,3 @@ void playNote(float noteFrequency, int duration) {
     delay(duration + 30); // Add a small delay between notes (30)
     noTone(speakerPin);
 }
-
